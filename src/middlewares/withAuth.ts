@@ -6,7 +6,7 @@ import {
 } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const onlyAdminPage = ["/dashboard"];
+const onlyAdminPage = ["/yoeh"];
 const authPage = ["/login", "/register"];
 
 export default function withAuth(

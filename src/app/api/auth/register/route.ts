@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { register } from "@/lib/firebase/service";
+import { register } from "@/lib/firebase/auth-service";
 
 export async function POST(request: NextRequest) {
 	const req = await request.json();

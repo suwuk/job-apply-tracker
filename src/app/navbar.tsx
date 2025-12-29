@@ -37,23 +37,23 @@ export default function Navbar() {
 						<Link href="/#home" className={linkStyles("/")}>
 							Home
 						</Link>
-						<Link href="/#features" className={linkStyles("/about")}>
+						<Link href="/#features" className={linkStyles("/#features")}>
 							Features
 						</Link>
-						<Link href="/#testimonials" className={linkStyles("/product")}>
+						<Link href="/#testimonials" className={linkStyles("/#testimonials")}>
 							Testimonials
 						</Link>
-						<Link href="#" className={linkStyles("/about/profile")}>
+						<Link href="#" className={linkStyles("/#")}>
 							FAQs
 						</Link>
 					</div>
 
-					{/* Right Side: Auth Section */}
+					{/* Right Side*/}
 					<div className="flex items-center gap-4">
 						{status === "authenticated" ? (
 							<div className="flex items-center gap-3">
 								{/* Notification Button */}
-								<button className="p-2 text-slate-400 hover:text-blue-600 transition">
+								{/* <button className="p-2 text-slate-400 hover:text-blue-600 transition">
 									<svg
 										viewBox="0 0 24 24"
 										fill="none"
@@ -67,7 +67,8 @@ export default function Navbar() {
 											strokeLinejoin="round"
 										/>
 									</svg>
-								</button>
+								</button> */}
+								<Link href="/dashboard" className="text-slate-600 hover:text-blue-600">Dashboard</Link>
 
 								{/* Profile Dropdown */}
 								<div className="relative">

@@ -13,7 +13,7 @@ interface DbUser {
   image?: string | null;
 }
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -63,6 +63,7 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }: any) {
       if (user) {
+        token.id = user.id;
         token.email = user.email;
         token.fullname = user.fullname;
         token.role = user.role;
@@ -84,6 +85,7 @@ const authOptions: NextAuthOptions = {
           data,
           (result: { status: boolean; data: any }) => {
             if (result.status) {
+              token.id = result.data.id;
               token.email = result.data.email;
               token.fullname = result.data.fullname;
               token.image = result.data.image;
@@ -97,6 +99,9 @@ const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }: any) {
+      if ("id" in token) {
+        session.user.id = token.id;
+      }
       if ("email" in token) {
         session.user.email = token.email;
       }

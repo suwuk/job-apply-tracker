@@ -1,0 +1,205 @@
+"use client";
+
+import React, { useRef, useMemo } from "react";
+import Link from "next/link";
+import {
+  Loader2,
+  FileX,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  MousePointer2,
+  Calendar,
+  Clipboard,
+  ClipboardPenLine,
+} from "lucide-react";
+import { useJobs } from "@/context/JobContext";
+import { JobApplicationPayload, ApplicationStage } from "@/types/applications";
+
+export default function TestColumn() {
+  const { jobs, loading } = useJobs();
+
+  const scrollRef = useRef<HTMLUListElement>(null);
+
+  const testJobs = useMemo(
+    () => jobs.filter((job) => job.status === "test"),
+    [jobs]
+  );
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo =
+        direction === "left"
+          ? scrollLeft - clientWidth / 2
+          : scrollLeft + clientWidth / 2;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <section className="flex flex-col bg-slate-50/80 rounded-4xl p-4 md:p-6 border border-slate-200/50 w-full overflow-hidden group/column">
+      <header className="flex items-center justify-between mb-2 px-1 text-slate-500">
+        <div className="flex items-center gap-2">
+          <div
+            className="bg-slate-500 p-1.5 rounded-lg text-white shrink-0"
+            aria-hidden="true"
+          >
+            <ClipboardPenLine size={14} />
+          </div>
+          <h2 className="font-black text-xs md:text-sm uppercase tracking-wider">
+            Test
+          </h2>
+        </div>
+        <span className="bg-slate-200 text-slate-600 text-[10px] md:text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">
+          {loading ? "..." : testJobs.length}
+        </span>
+      </header>
+
+      {!loading && testJobs.length > 1 && (
+        <div className="flex items-center gap-1 text-[9px] text-slate-400 font-bold uppercase mb-3 ml-1 animate-pulse">
+          <MousePointer2 size={10} aria-hidden="true" /> Swipe or use arrows
+        </div>
+      )}
+
+      <div className="relative w-full">
+        {testJobs.length > 1 && (
+          <nav aria-label="Slider navigation" className="hidden lg:block">
+            <button
+              onClick={() => scroll("left")}
+              aria-label="Scroll left"
+              className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md border text-slate-600 opacity-0 group-hover/column:opacity-100 transition-opacity hover:bg-slate-600 hover:text-white"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              aria-label="Scroll right"
+              className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-md border text-slate-600 opacity-0 group-hover/column:opacity-100 transition-opacity hover:bg-slate-600 hover:text-white"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </nav>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center py-10" aria-busy="true">
+            <Loader2 className="animate-spin text-slate-400" />
+          </div>
+        ) : testJobs.length > 0 ? (
+          <ul
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory list-none p-0 m-0"
+          >
+            {testJobs.map((job: JobApplicationPayload) => {
+              const testStage = job.stages?.find(
+                (s: ApplicationStage) => s.type === "test"
+              );
+
+              return (
+                <li
+                  key={job.id}
+                  className="min-w-70 md:min-w-[320px] snap-start"
+                >
+                  <Link
+                    href={`/mytrack/details/${job.id}`}
+                    scroll={false}
+                    className="block h-full group/card outline-none"
+                  >
+                    <article className="bg-white p-5 rounded-3xl shadow-sm border border-transparent hover:border-slate-300 transition-all h-full flex flex-col">
+                      <header className="flex justify-between items-start mb-4">
+                        <div
+                          className="w-12 h-12 shrink-0 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-xl uppercase"
+                          aria-hidden="true"
+                        >
+                          {job.companyName?.charAt(0)}
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-slate-700 bg-blue-50 px-2 py-1 rounded-lg">
+                            {testStage?.title || "Test"}
+                          </span>
+                        </div>
+                      </header>
+
+                      <div className="mb-4">
+                        <h3 className="font-bold text-slate-800 text-sm truncate m-0">
+                          {job.companyName}
+                        </h3>
+                        <p className="text-xs text-slate-400 truncate m-0">
+                          {job.position}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 mb-4 flex-1">
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <Calendar
+                            size={12}
+                            className="shrink-0 text-slate-400"
+                            aria-hidden="true"
+                          />
+                          <time
+                            className="text-[10px] font-bold uppercase tracking-tight"
+                            dateTime={testStage?.scheduledAt || ""}
+                          >
+                            {formatDate(testStage?.scheduledAt)}
+                          </time>
+                        </div>
+                        {testStage?.notes && (
+                          <div className="flex items-start gap-2 text-slate-500 bg-slate-50 p-2 rounded-xl">
+                            <Clipboard
+                              size={12}
+                              className="shrink-0 mt-0.5 text-slate-400"
+                              aria-hidden="true"
+                            />
+                            <p className="text-[10px] font-medium leading-relaxed line-clamp-2 italic m-0">
+                              &quot;{testStage.notes}&quot;
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <footer className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+                        <div className="flex items-center gap-2 bg-amber-50 text-amber-600 px-3 py-1 rounded-full w-fit">
+                          <Zap
+                            size={10}
+                            fill="currentColor"
+                            aria-hidden="true"
+                          />
+                          <span className="text-[9px] font-black uppercase tracking-tighter">
+                            Priority: {job.priority || "High"}
+                          </span>
+                        </div>
+                      </footer>
+                    </article>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 bg-white/40 rounded-2xl border border-dashed border-slate-300 text-center">
+            <FileX
+              size={40}
+              className="text-slate-200 mb-2"
+              aria-hidden="true"
+            />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 m-0">
+              No Skills Test
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
