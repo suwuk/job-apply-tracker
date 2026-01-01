@@ -9,13 +9,17 @@ import { useParams } from "next/navigation";
 export default function DetailModalPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { jobs } = useJobs();
+  const { jobs, refreshJobs } = useJobs();
 
   const job = jobs.find((j) => j.id === id);
 
   return (
     <Modal isOpen={true} onClose={() => router.back()} maxWidth="max-w-4xl">
-      <ApplicationDetailContent job={job} onClose={() => router.back()} />
+      <ApplicationDetailContent
+        job={job}
+        refresh={refreshJobs}
+        onClose={() => router.back()}
+      />
     </Modal>
   );
 }

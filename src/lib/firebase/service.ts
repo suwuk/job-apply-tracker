@@ -12,6 +12,7 @@ import {
   DocumentData,
   serverTimestamp,
   orderBy,
+  deleteDoc,
 } from "firebase/firestore";
 import app from "./init";
 import { CreateApplicationDTO } from "@/types/applications";
@@ -126,5 +127,16 @@ export async function getApplicationsByUserId(userId: string) {
   } catch (error) {
     console.error("Error fetching data:", error);
     return [];
+  }
+}
+
+export async function deleteApplication(id: string) {
+  try {
+    const docRef = doc(firestore, "applications", id);
+    await deleteDoc(docRef);
+
+    console.log("Data berhasil dihapus!");
+  } catch (error) {
+    console.error("Gagal menghapus data:", error);
   }
 }

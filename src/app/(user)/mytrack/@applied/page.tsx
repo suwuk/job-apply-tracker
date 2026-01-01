@@ -60,7 +60,7 @@ export default function AppliedColumn() {
         </span>
       </div>
 
-      {/* Info Slide */}
+      {/* Slider */}
       {!loading && appliedJobs.length > 1 && (
         <div className="flex items-center gap-1 text-[9px] text-blue-400 font-bold uppercase tracking-tighter mb-3 ml-1 animate-pulse">
           <MousePointer2 size={10} /> Swipe or use arrows to see more
@@ -105,21 +105,21 @@ export default function AppliedColumn() {
                   className="block"
                 >
                   <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all border border-transparent hover:border-blue-200 h-full">
-                    <div className="flex justify-between mb-4">
-                      <div className="flex gap-3">
+                    <div className="flex justify-between mb-4 gap-4">
+                      <div className="flex gap-3 min-w-0">
                         <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-500 flex items-center justify-center text-white font-bold text-xl uppercase">
                           {job.companyName?.charAt(0)}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-bold text-gray-800 text-sm truncate">
+                          <h4 className="font-bold text-gray-800 text-sm break-words">
                             {job.companyName}
                           </h4>
-                          <p className="text-xs text-gray-400 truncate">
+                          <p className="text-xs text-gray-400 break-words">
                             {job.position}
                           </p>
                         </div>
                       </div>
-                      <div className="text-slate-400 pr-1.5 text-md self-center">
+                      <div className="text-slate-400 pr-1.5 text-md self-start mt-1 shrink-0">
                         {formatEmploymentType(job.employmentType || "")}
                       </div>
                     </div>

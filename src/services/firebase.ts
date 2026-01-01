@@ -1,5 +1,12 @@
 import { CreateApplicationDTO } from "@/types/applications";
 
+
+export async function revalidate() {
+  await fetch(`http://localhost:3000/api/revalidate?tag=applications&secret=${process.env.REVALIDATE_TOKEN}`,{
+    method: "POST",
+  });
+};
+
 export async function createApply(data: CreateApplicationDTO) {
 	const res = await fetch("/api/applications/create", {
 		method: "POST",
@@ -26,4 +33,16 @@ export async function getApplications(url: string){
 
   return res.json();
 }
+
+export async function deleteApplication(id: string){
+  const res = await fetch(`/api/applications/${id}`, {
+    method: "DELETE"
+  })
+  if (!res.ok) {
+    throw new Error("Gagal menghapus data");
+  }
+  
+  return await res.json();
+}
+
 

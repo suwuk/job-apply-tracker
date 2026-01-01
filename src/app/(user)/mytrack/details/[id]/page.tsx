@@ -9,7 +9,7 @@ import ApplicationDetailContent from "@/components/ApplicationDetailContent";
 export default function FullDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { jobs, loading } = useJobs();
+  const { jobs, loading, refreshJobs } = useJobs();
 
   const job = useMemo(
     () => jobs.find((j) => j.id === params.id),
@@ -77,7 +77,11 @@ export default function FullDetailPage() {
           className="shadow-xl rounded-[2.5rem] overflow-hidden"
           aria-label={`Detail lamaran kerja di ${job.companyName}`}
         >
-          <ApplicationDetailContent job={job} isFullPage={true} />
+          <ApplicationDetailContent
+            job={job}
+            refresh={refreshJobs}
+            isFullPage={true}
+          />
         </section>
       </div>
     </main>
