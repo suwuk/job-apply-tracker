@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { 
   ArrowLeft, Save, Loader2, ChevronDown, 
@@ -8,7 +8,9 @@ import {
 } from "lucide-react";
 import { 
   ApplicationStatus, 
-  EmploymentType 
+  EmploymentType,
+  JobApplicationPayload,
+  ApplicationStage
 } from "@/types/applications";
 
 import { patchApplication } from "@/services/firebase";
@@ -26,16 +28,19 @@ export default function EditApplicationPage() {
   const { jobs } = useJobs(); 
   
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-  const [companyName, setCompanyName] = useState("");
-  const [oldStages, setOldStages] = useState<any[]>([]);
-  const [originalStatus, setOriginalStatus] = useState("");
+  
+  // 1. Cari data job secara sinkron menggunakan useMemo
+  const currentJob = useMemo(() => {
+    return jobs?.find((j: JobApplicationPayload) => j.id === (params?.id as string)) || null;
+  }, [jobs, params?.id]);
 
+  // 2. Langsung gunakan data currentJob sebagai INITIAL STATE
+  // Ini menghindari penggunaan useEffect + setForm yang menyebabkan cascading render
   const [form, setForm] = useState({
-    employmentType: EmploymentType.FULL_TIME,
-    status: ApplicationStatus.APPLIED,
-    priority: ApplicationPriority.MEDIUM,
-    notes: "",
+    employmentType: currentJob?.employmentType || EmploymentType.FULL_TIME,
+    status: (currentJob?.status as ApplicationStatus) || ApplicationStatus.APPLIED,
+    priority: (currentJob?.priority as ApplicationPriority) || ApplicationPriority.MEDIUM,
+    notes: currentJob?.notes || "",
     stageTitle: "",
     stageNotes: "",
     scheduledAt: "",
@@ -43,36 +48,18 @@ export default function EditApplicationPage() {
     rejectedAt: new Date().toISOString().slice(0, 16),
   });
 
-  useEffect(() => {
-    if (jobs && jobs.length > 0 && params.id) {
-      const currentJob = jobs.find((j: any) => j.id === params.id);
-      
-      if (currentJob) {
-        setCompanyName(currentJob.companyName);
-        setOriginalStatus(currentJob.status);
-        setOldStages(currentJob.stages || []);
-        
-        setForm(prev => ({
-          ...prev,
-          employmentType: currentJob.employmentType || EmploymentType.FULL_TIME,
-          status: currentJob.status,
-          priority: currentJob.priority || ApplicationPriority.MEDIUM,
-          notes: currentJob.notes || "",
-        }));
-        setInitialized(true);
-      }
-    }
-  }, [jobs, params.id]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!params?.id || !currentJob) return;
+    
     setLoading(true);
 
     try {
-      let updatedStages = [...oldStages];
+      const oldStages: ApplicationStage[] = currentJob.stages || [];
+      const updatedStages: ApplicationStage[] = [...oldStages];
       const now = new Date().toISOString();
 
-      if (form.status !== originalStatus) {
+      if (form.status !== currentJob.status) {
         if (form.status === ApplicationStatus.REJECTED) {
           updatedStages.push({
             id: `stage-rejected-${Date.now()}`,
@@ -87,7 +74,7 @@ export default function EditApplicationPage() {
         } else {
           updatedStages.push({
             id: `stage-${form.status}-${Date.now()}`,
-            type: form.status as any,
+            type: form.status as string,
             title: form.stageTitle || (form.status === "offer" ? "Job Offer Received" : form.status === "accepted" ? "Onboarding" : `Update to ${form.status}`),
             status: form.status === "offer" ? "received" : (form.status === "accepted" ? "passed" : "pending"),
             scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
@@ -117,13 +104,14 @@ export default function EditApplicationPage() {
     }
   };
 
-  if (!initialized) return (
+  // Tampilkan loader jika jobs belum dimuat oleh context
+  if (!currentJob) return (
     <div className="flex h-[80vh] items-center justify-center">
       <Loader2 className="animate-spin text-blue-500" size={32} />
     </div>
   );
 
-  const isStatusChanged = form.status !== originalStatus;
+  const isStatusChanged = form.status !== currentJob.status;
   const showStageInput = ["test", "interview", "offer", "accepted"].includes(form.status);
 
   const getPriorityColor = (p: string) => {
@@ -135,7 +123,7 @@ export default function EditApplicationPage() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-6 md:py-10">
+    <div className="w-full max-w-4xl mx-auto px-4 py-6 md:py-10 text-slate-900">
       <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 mb-6 group">
         <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         <span className="text-xs font-bold uppercase tracking-widest">Back</span>
@@ -143,12 +131,11 @@ export default function EditApplicationPage() {
 
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Edit Application</h1>
-        <p className="text-slate-500 text-sm mt-1">{companyName}</p>
+        <p className="text-slate-500 text-sm mt-1">{currentJob.companyName}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-3xl p-5 md:p-10 shadow-sm border border-slate-100 space-y-8">
-          
           <section className="space-y-6">
             <div className="flex items-center justify-between border-b border-slate-50 pb-3">
               <h3 className="font-bold text-slate-800 text-base md:text-lg">Main Info</h3>
@@ -160,7 +147,6 @@ export default function EditApplicationPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Status Select */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500">Current Status</label>
                 <div className="relative">
@@ -181,7 +167,6 @@ export default function EditApplicationPage() {
                 </div>
               </div>
 
-              {/* Priority Select */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500">Priority Level</label>
                 <div className="relative">
@@ -198,7 +183,6 @@ export default function EditApplicationPage() {
                 </div>
               </div>
 
-              {/* Employment Select */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500">Employment Type</label>
                 <div className="relative">
@@ -217,7 +201,7 @@ export default function EditApplicationPage() {
             </div>
           </section>
 
-          {/* Conditional Input Stage Baru */}
+          {/* New Stage Inputs */}
           {isStatusChanged && showStageInput && (
             <div className={`p-5 md:p-8 rounded-2xl border-2 border-dashed animate-in slide-in-from-top-4 duration-500 ${
               ["offer", "accepted"].includes(form.status) ? "bg-emerald-50/40 border-emerald-100" : "bg-blue-50/40 border-blue-100"
@@ -259,7 +243,7 @@ export default function EditApplicationPage() {
             </div>
           )}
 
-          {/* Conditional Input Rejected */}
+          {/* Rejection Info */}
           {isStatusChanged && form.status === ApplicationStatus.REJECTED && (
             <div className="p-5 md:p-8 bg-red-50/40 border-2 border-dashed border-red-100 rounded-2xl animate-in slide-in-from-top-4 duration-500">
               <div className="flex items-center gap-2 mb-6 font-bold text-[10px] uppercase tracking-widest text-red-500">
@@ -288,7 +272,6 @@ export default function EditApplicationPage() {
             </div>
           )}
 
-          {/* General Notes */}
           <section className="space-y-3">
             <label className="text-xs font-bold text-slate-500 ml-1">General Notes</label>
             <textarea
@@ -300,7 +283,6 @@ export default function EditApplicationPage() {
           </section>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-col-reverse md:flex-row gap-3 md:justify-end pt-4">
           <button
             type="button"

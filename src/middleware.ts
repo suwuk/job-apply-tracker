@@ -24,8 +24,6 @@ export async function mainMiddleware(request: NextRequest) {
 
 export default withAuth(mainMiddleware, [
 	"/dashboard",
-	"/profile",
-	"/product",
 	"/login",
 	"/register",
 ]);
