@@ -17,6 +17,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { deleteApplication } from "@/services/firebase";
+import Link from "next/link";
 
 export default function ApplicationDetailContent({
   job,
@@ -175,16 +176,19 @@ export default function ApplicationDetailContent({
                   rel="noopener noreferrer"
                   className="text-blue-500 flex items-center gap-1 text-[10px] font-bold mt-1 hover:underline"
                 >
-                  <LinkIcon size={10} /> Listing
+                  <LinkIcon size={10} /> Link Apply
                 </a>
               )}
             </div>
           </div>
 
           <div className="flex gap-2">
-            <button className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-[10px] md:text-sm">
+            <Link
+              href={`/mytrack/change-stage/${job.id}`}
+              className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-[10px] md:text-sm"
+            >
               <Edit3 size={14} className="md:w-4 md:h-4" /> Edit
-            </button>
+            </Link>
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="flex-1 bg-red-50 text-red-500 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-[10px] md:text-sm"

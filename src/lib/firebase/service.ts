@@ -9,9 +9,7 @@ import {
   query,
   updateDoc,
   where,
-  DocumentData,
   serverTimestamp,
-  orderBy,
   deleteDoc,
 } from "firebase/firestore";
 import app from "./init";
@@ -127,6 +125,22 @@ export async function getApplicationsByUserId(userId: string) {
   } catch (error) {
     console.error("Error fetching data:", error);
     return [];
+  }
+}
+
+export async function patchApplication(id: string, data: any) {
+  try {
+    const docRef = doc(firestore, "applications", id);
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp(),
+    };
+
+    await updateDoc(docRef, updateData);
+    return { id, ...updateData };
+  } catch (error) {
+    console.error("Error patching application: ", error);
+    throw new Error("Gagal memperbarui data");
   }
 }
 

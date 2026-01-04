@@ -44,7 +44,7 @@ export default function AddApplicationPage() {
     position: "",
     platform: Platform.LINKEDIN,
     jobUrl: "",
-    status: ApplicationStatus.APPLIED,
+    status: ApplicationStatus.APPLIED, // Berubah dari DRAFT ke APPLIED
     appliedAt: new Date().toISOString().slice(0, 16),
     location: "",
     employmentType: EmploymentType.FULL_TIME,

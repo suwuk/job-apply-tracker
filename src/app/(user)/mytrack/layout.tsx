@@ -15,7 +15,7 @@ export default function MyTrackLayout({
   modal: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAddPage = pathname === "/mytrack/add";
+  const isAddPage = pathname === "/mytrack/add" || pathname.startsWith("/mytrack/change-stage");
 
   return (
     <JobProvider>
@@ -26,7 +26,6 @@ export default function MyTrackLayout({
           ) : (
             <>
               {children}
-              {/* Layout Kolom: Selalu Flex-Col (Ke bawah) */}
               <div className="flex flex-col gap-8 pb-20">
                 {applied}
                 {test}

@@ -23,9 +23,9 @@ export default function DashboardLayout({
           <div className="h-full">
             {event}
           </div>
-          <div className="h-full">
+          {/* <div className="h-full">
             {activity}
-          </div>
+          </div> */}
         </section>
       </main>
     </JobProvider>

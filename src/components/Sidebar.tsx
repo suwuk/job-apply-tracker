@@ -38,7 +38,7 @@ export default function Sidebar() {
       label: "Applications History",
       href: "/application-history",
     },
-    { icon: <Settings size={20} />, label: "Settings", href: "/settings" },
+    // { icon: <Settings size={20} />, label: "Settings", href: "/settings" },
   ];
 
   return (
