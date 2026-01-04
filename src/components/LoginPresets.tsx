@@ -130,7 +130,7 @@ export default function LoginPresets() {
 
               <p className="text-sm text-center text-slate-500">
                 Don’t have an account yet?{" "}
-                <Link href="/register" className="font-semibold text-blue-600 hover:underline">
+                <Link href="/register" className="font-semibold text-blue-600 hover:underline" onClick={() => onClose()}>
                   Sign up
                 </Link>
               </p>
