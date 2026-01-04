@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { deleteApplication, patchApplication } from "@/lib/firebase/service";
 import { revalidateTag } from "next/cache";
 
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
 export async function DELETE(request: Request, { params }) {
   const { id } = await params;
   try {
@@ -21,11 +25,11 @@ export async function DELETE(request: Request, { params }) {
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: RouteContext 
 ) {
   try {
     const body = await req.json();
-    const { id } = params;
+    const { id } = await context.params;
 
     if (!id) {
       return NextResponse.json(
