@@ -1,4 +1,4 @@
-import { CreateApplicationDTO } from "@/types/applications";
+import { CreateApplicationDTO, PatchApplicationPayload } from "@/types/applications";
 
 
 export async function revalidate() {
@@ -34,7 +34,7 @@ export async function getApplications(url: string){
   return res.json();
 }
 
-export async function patchApplication(id: string, data: any) {
+export async function patchApplication(id: string, data: PatchApplicationPayload) {
   const res = await fetch(`/api/applications/${id}`, {
     method: "PATCH",
     headers: {

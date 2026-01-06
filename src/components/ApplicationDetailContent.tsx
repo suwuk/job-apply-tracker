@@ -18,13 +18,21 @@ import {
 } from "lucide-react";
 import { deleteApplication } from "@/services/firebase";
 import Link from "next/link";
+import { ApplicationStage, JobApplicationPayload } from "@/types/applications";
+
+export interface ApplicationDetailContentProps {
+  job: JobApplicationPayload;
+  onClose?: () => void;          // opsional, dipakai saat modal
+  refresh: () => Promise<void>;   // wajib, untuk refresh data
+  isFullPage?: boolean;           // default false
+}
 
 export default function ApplicationDetailContent({
   job,
   onClose,
   refresh,
   isFullPage = false,
-}: any) {
+}: ApplicationDetailContentProps) {
   const router = useRouter();
   const [canGoBack, setCanGoBack] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -73,8 +81,10 @@ export default function ApplicationDetailContent({
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteApplication(job.id);
-      await refresh();
+      if(job.id){
+        await deleteApplication(job.id);
+        await refresh();
+      }
 
       if (onClose) {
         onClose();
@@ -99,8 +109,8 @@ export default function ApplicationDetailContent({
     >
       {/* OVERLAY KONFIRMASI DELETE */}
       {showDeleteConfirm && (
-        <div className="absolute inset-0 z-[100] bg-slate-900/40 backdrop-blur-2xs flex items-center justify-center p-6 transition-all">
-          <div className="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl scale-in-center border border-slate-100">
+        <div className="absolute inset-0 z-100 bg-slate-900/40 backdrop-blur-2xs flex items-center justify-center p-6 transition-all">
+          <div className="bg-white rounded-4xl p-8 max-w-sm w-full shadow-2xl scale-in-center border border-slate-100">
             <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <AlertCircle size={32} />
             </div>
@@ -218,12 +228,12 @@ export default function ApplicationDetailContent({
               <DetailRow
                 icon={<Briefcase size={16} />}
                 label="Type"
-                value={formatString(job.employmentType)}
+                value={formatString(job.employmentType || "")}
               />
               <DetailRow
                 icon={<Calendar size={16} />}
                 label="Applied"
-                value={formatDate(job.appliedAt)}
+                value={formatDate(job.appliedAt || null)}
               />
             </div>
             <div>
@@ -257,12 +267,12 @@ export default function ApplicationDetailContent({
                 Activities
               </h4>
               <div className="space-y-6 border-l-2 border-slate-100 ml-3 md:ml-4 pl-6 md:pl-10 relative">
-                {job.stages?.map((stage: any) => {
+                {job.stages?.map((stage: ApplicationStage) => {
                   const isCurrentStatus = stage.type === job.status;
                   return (
                     <div key={stage.id} className="relative group">
                       <div
-                        className={`absolute -left-[33px] md:-left-[58px] top-0 p-1 rounded-full border-2 md:border-4 border-white shadow-sm transition-all z-10 
+                        className={`absolute -left-8.25 md:-left-14.5 top-0 p-1 rounded-full border-2 md:border-4 border-white shadow-sm transition-all z-10 
                         ${
                           isCurrentStatus
                             ? "bg-blue-600 text-white scale-110"
@@ -333,7 +343,7 @@ export default function ApplicationDetailContent({
   );
 }
 
-function DetailRow({ icon, label, value }: any) {
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 md:gap-4 text-slate-600 group">
       <div className="text-slate-300 group-hover:text-blue-500 transition-colors pt-0.5 shrink-0">

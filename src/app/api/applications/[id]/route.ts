@@ -15,18 +15,17 @@ export async function DELETE(request: Request, context: RouteContext) {
       { message: "Data deleted successfully" },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to delete data" },
+      {
+        error: error instanceof Error ? error.message : "Failed to delete data",
+      },
       { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  req: Request,
-  context: RouteContext 
-) {
+export async function PATCH(req: Request, context: RouteContext) {
   try {
     const body = await req.json();
     const { id } = await context.params;
@@ -47,11 +46,14 @@ export async function PATCH(
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         status: false,
-        message: error.message || "Terjadi kesalahan pada server",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan pada server",
       },
       { status: 500 }
     );

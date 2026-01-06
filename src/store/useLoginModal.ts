@@ -7,7 +7,7 @@ interface LoginModalStore {
 }
 
 export const useLoginModal = create<LoginModalStore>((set) => ({
-	isOpen: false, // Defaultnya tertutup
+	isOpen: false, 
 	onOpen: () => set({ isOpen: true }), // Fungsi buka
 	onClose: () => set({ isOpen: false }), // Fungsi tutup
 }));

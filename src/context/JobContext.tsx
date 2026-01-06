@@ -8,9 +8,10 @@ import React, {
   useCallback,
 } from "react";
 import { getApplications } from "@/services/firebase";
+import { JobApplicationPayload } from "@/types/applications";
 
 interface JobContextType {
-  jobs: any[];
+  jobs: JobApplicationPayload[];
   loading: boolean;
   refreshJobs: () => Promise<void>;
 }
@@ -18,7 +19,7 @@ interface JobContextType {
 const JobContext = createContext<JobContextType | undefined>(undefined);
 
 export function JobProvider({ children }: { children: React.ReactNode }) {
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<JobApplicationPayload[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refreshJobs = useCallback(async () => {

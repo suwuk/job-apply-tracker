@@ -1,6 +1,7 @@
 "use client";
 
 import { useJobs } from "@/context/JobContext";
+import { StatCardProps } from "@/types/applications";
 
 export default function DashboardMainPage() {
   const { jobs, loading } = useJobs();
@@ -52,12 +53,6 @@ export default function DashboardMainPage() {
       </div>
     </section>
   );
-}
-
-interface StatCardProps {
-  label: string;
-  count: number;
-  color: string;
 }
 
 function StatCard({ label, count, color }: StatCardProps) {

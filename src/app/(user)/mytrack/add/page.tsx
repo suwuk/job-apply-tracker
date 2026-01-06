@@ -31,6 +31,7 @@ import {
 } from "@/types/applications";
 import { createApply } from "@/services/firebase";
 import { useJobs } from "@/context/JobContext";
+import { ApplicationFormState } from "@/types/applications";
 
 export default function AddApplicationPage() {
   const { refreshJobs } = useJobs();
@@ -39,7 +40,7 @@ export default function AddApplicationPage() {
   const [loading, setLoading] = useState(false);
 
   const [priority, setPriority] = useState<ApplicationPriority>("high");
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ApplicationFormState>({
     companyName: "",
     position: "",
     platform: Platform.LINKEDIN,
@@ -56,7 +57,10 @@ export default function AddApplicationPage() {
     rejectedAt: new Date().toISOString().slice(0, 16),
   });
 
-  const updateForm = (key: string, value: any) => {
+  const updateForm = <K extends keyof ApplicationFormState>(
+    key: K,
+    value: ApplicationFormState[K]
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -156,8 +160,12 @@ export default function AddApplicationPage() {
       await refreshJobs();
       router.push("/mytrack");
       router.refresh();
-    } catch (error: any) {
-      alert(error.message || "Gagal menyimpan lamaran");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Gagal menyimpan lamaran");
+      }
     } finally {
       setLoading(false);
     }
@@ -198,7 +206,7 @@ export default function AddApplicationPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 md:space-y-8 bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-12 shadow-sm border border-slate-50 font-sans"
+        className="space-y-6 md:space-y-8 bg-white rounded-3xl md:rounded-[2.5rem] p-5 md:p-12 shadow-sm border border-slate-50 font-sans"
       >
         {/* BASIC INFORMATION */}
         <section className="space-y-4 md:space-y-6">
@@ -251,7 +259,9 @@ export default function AddApplicationPage() {
               <div className="relative">
                 <select
                   value={form.platform}
-                  onChange={(e) => updateForm("platform", e.target.value)}
+                  onChange={(e) =>
+                    updateForm("platform", e.target.value as Platform)
+                  }
                   className="w-full px-5 py-3.5 md:py-4 bg-slate-50 border border-slate-200 text-black rounded-xl md:rounded-2xl appearance-none outline-none font-medium text-sm md:text-base"
                 >
                   {Object.values(Platform).map((p) => (
@@ -321,7 +331,9 @@ export default function AddApplicationPage() {
               <div className="relative font-sans">
                 <select
                   value={form.status}
-                  onChange={(e) => updateForm("status", e.target.value)}
+                  onChange={(e) =>
+                    updateForm("status", e.target.value as ApplicationStatus)
+                  }
                   className={`w-full px-5 py-3.5 md:py-4 border rounded-xl md:rounded-2xl outline-none font-bold cursor-pointer appearance-none text-sm md:text-base ${
                     form.status === "rejected"
                       ? "bg-red-50 border-red-100 text-red-600"
@@ -515,7 +527,12 @@ export default function AddApplicationPage() {
               <div className="relative">
                 <select
                   value={form.employmentType}
-                  onChange={(e) => updateForm("employmentType", e.target.value)}
+                  onChange={(e) =>
+                    updateForm(
+                      "employmentType",
+                      e.target.value as EmploymentType
+                    )
+                  }
                   className="w-full px-5 py-3.5 md:py-4 bg-slate-50 border border-slate-200 text-black rounded-xl md:rounded-2xl appearance-none outline-none font-medium cursor-pointer text-sm md:text-base"
                 >
                   {Object.values(EmploymentType).map((e) => (

@@ -12,7 +12,11 @@ import {
 import Link from "next/link";
 import { useJobs } from "@/context/JobContext";
 import ApplicationDetailContent from "@/components/ApplicationDetailContent";
-import { JobApplicationPayload, ApplicationStatus, ApplicationStage } from "@/types/applications";
+import {
+  JobApplicationPayload,
+  ApplicationStatus,
+  ApplicationStage,
+} from "@/types/applications";
 import { formatFullDate, formatTimeOnly } from "@/utils/date";
 
 export default function InterviewsPage() {
@@ -30,10 +34,12 @@ export default function InterviewsPage() {
       )
       .sort((a, b) => {
         const dateA = new Date(
-          a.stages?.find((s: ApplicationStage) => s.type === "interview")?.scheduledAt || 0
+          a.stages?.find((s: ApplicationStage) => s.type === "interview")
+            ?.scheduledAt || 0
         ).getTime();
         const dateB = new Date(
-          b.stages?.find((s: ApplicationStage) => s.type === "interview")?.scheduledAt || 0
+          b.stages?.find((s: ApplicationStage) => s.type === "interview")
+            ?.scheduledAt || 0
         ).getTime();
         return dateA - dateB;
       });

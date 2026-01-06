@@ -6,7 +6,7 @@ import {
   ListTodo,
   Calendar,
   History,
-  Settings,
+  // Settings,
   LogOut,
   CheckCircle2,
   Menu,
@@ -65,7 +65,7 @@ export default function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static shadow-2xl lg:shadow-none`}
       >
-        <div className="p-6 flex items-center gap-2 text-xl font-bold">
+        <Link href="/" className="p-6 flex items-center gap-2 text-xl font-bold">
           <div
             className="bg-white text-[#2D4A8A] p-1 rounded"
             aria-hidden="true"
@@ -73,7 +73,7 @@ export default function Sidebar() {
             <CheckCircle2 size={20} />
           </div>
           <span className="tracking-tight">JobTrackr</span>
-        </div>
+        </Link>
 
         <nav
           className="flex-1 px-4 py-4 overflow-y-auto"

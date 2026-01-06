@@ -5,6 +5,7 @@ import Modal from "@/components/core/Modal";
 import ApplicationDetailContent from "@/components/ApplicationDetailContent";
 import { useJobs } from "@/context/JobContext";
 import { useParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function DetailModalPage() {
   const router = useRouter();
@@ -12,6 +13,14 @@ export default function DetailModalPage() {
   const { jobs, refreshJobs } = useJobs();
 
   const job = jobs.find((j) => j.id === id);
+
+  if (!job)
+    return (
+      <div className="flex justify-center py-10">
+        <div className="p-10 text-center">Memuat detail lamaran...</div>;
+        <Loader2 className="animate-spin text-blue-400" />
+      </div>
+    );
 
   return (
     <Modal isOpen={true} onClose={() => router.back()} maxWidth="max-w-4xl">

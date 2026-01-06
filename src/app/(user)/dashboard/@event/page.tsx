@@ -4,18 +4,11 @@ import React, { useMemo } from "react";
 import { Calendar, Loader2 } from "lucide-react";
 import { useJobs } from "@/context/JobContext";
 import { formatEventDate } from "@/utils/date";
-import { JobApplicationPayload, ApplicationStage } from "@/types/applications";
-
-interface TimelineEvent {
-  id: string;
-  logo: string;
-  title: string;
-  date: Date;
-  isoDate: string;
-  location: string;
-  isToday: boolean;
-  color: string;
-}
+import {
+  JobApplicationPayload,
+  ApplicationStage,
+  TimelineEvent,
+} from "@/types/applications";
 
 export default function EventPage() {
   const { jobs, loading } = useJobs();

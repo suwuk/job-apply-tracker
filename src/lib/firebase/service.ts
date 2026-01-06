@@ -14,6 +14,11 @@ import {
 } from "firebase/firestore";
 import app from "./init";
 import { CreateApplicationDTO } from "@/types/applications";
+import {
+  FirestoreApplicationPayload,
+  ApplicationStage,
+} from "@/types/applications";
+import { DbUser, GoogleLoginInput } from "@/types/user";
 
 export const firestore = getFirestore(app);
 
@@ -53,7 +58,10 @@ export async function getUserByEmail(email: string) {
   };
 }
 
-export async function loginWithGoogle(data: any, callback: any) {
+export async function loginWithGoogle(
+  data: GoogleLoginInput,
+  callback: (result: { status: boolean; data: DbUser }) => void
+) {
   const q = query(
     collection(firestore, "users"),
     where("email", "==", data.email)
@@ -62,25 +70,46 @@ export async function loginWithGoogle(data: any, callback: any) {
 
   if (!snapshot.empty) {
     const userDoc = snapshot.docs[0];
-    const userData = userDoc.data();
+    const userData = userDoc.data() as DbUser;
 
-    // Update data profil terbaru dari Google
     const updateData = {
-      ...data,
+      fullname: data.fullname,
+      email: data.email,
+      image: data.image,
+      type: data.type,
       role: userData.role,
       updatedAt: serverTimestamp(),
     };
+
     await updateDoc(doc(firestore, "users", userDoc.id), updateData);
 
-    callback({ status: true, data: { id: userDoc.id, ...updateData } });
+    // Callback mengirim data ke JWT, NextAuth akan lanjut handle redirect
+    callback({
+      status: true,
+      data: {
+        ...userData,
+        ...data,
+        id: userDoc.id,
+        role: userData.role,
+      } as DbUser,
+    });
   } else {
-    // Jika user baru, buat dokumen baru
-    data.role = "member";
-    data.createdAt = serverTimestamp();
-    data.updatedAt = serverTimestamp();
+    const newUser = {
+      fullname: data.fullname || "",
+      email: data.email || "",
+      image: data.image || null,
+      type: data.type,
+      role: "member",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
 
-    const docRef = await addDoc(collection(firestore, "users"), data);
-    callback({ status: true, data: { id: docRef.id, ...data } });
+    const docRef = await addDoc(collection(firestore, "users"), newUser);
+
+    callback({
+      status: true,
+      data: { id: docRef.id, ...newUser } as DbUser,
+    });
   }
 }
 
@@ -92,7 +121,7 @@ export async function createApplication(data: CreateApplicationDTO) {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
 
-      stages: data.stages.map((stage: any) => ({
+      stages: data.stages.map((stage: ApplicationStage) => ({
         ...stage,
         createdAt: stage.createdAt || new Date().toISOString(),
       })),
@@ -128,7 +157,10 @@ export async function getApplicationsByUserId(userId: string) {
   }
 }
 
-export async function patchApplication(id: string, data: any) {
+export async function patchApplication(
+  id: string,
+  data: Partial<FirestoreApplicationPayload>
+) {
   try {
     const docRef = doc(firestore, "applications", id);
     const updateData = {

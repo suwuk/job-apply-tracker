@@ -93,11 +93,11 @@ export default function LoginPresets() {
                 />
               </div>
 
-              <div className="flex items-center justify-end">
+              {/* <div className="flex items-center justify-end">
                 <a href="#" className="text-sm font-medium text-blue-600 hover:underline">
                   Forgot password?
                 </a>
-              </div>
+              </div> */}
 
               <button
                 disabled={isLoading}

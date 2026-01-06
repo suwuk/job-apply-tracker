@@ -13,13 +13,16 @@ import {
 import { useJobs } from "@/context/JobContext";
 import ApplicationDetailContent from "@/components/ApplicationDetailContent";
 import { formatDateID } from "@/utils/date";
+import { JobApplicationPayload, TabButtonProps } from "@/types/applications";
 
 export default function ApplicationHistoryPage() {
-  const { jobs, loading } = useJobs();
+  const { jobs, loading, refreshJobs } = useJobs();
   const [activeTab, setActiveTab] = useState<
-    "accepted" | "progress" | "rejected" | any
+    "accepted" | "progress" | "rejected"
   >("accepted");
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<JobApplicationPayload | null>(
+    null
+  );
 
   const categories = {
     accepted: jobs.filter((j) => j.status === "accepted"),
@@ -119,7 +122,7 @@ export default function ApplicationHistoryPage() {
                           Applied Date
                         </p>
                         <time
-                          dateTime={job.appliedAt}
+                          dateTime={job.appliedAt ?? undefined}
                           className="flex items-center gap-1.5 md:gap-2 text-slate-700 font-bold text-[10px] md:text-sm whitespace-nowrap"
                         >
                           <Calendar
@@ -189,6 +192,7 @@ export default function ApplicationHistoryPage() {
               job={selectedJob}
               onClose={() => setSelectedJob(null)}
               isFullPage={false}
+              refresh={refreshJobs}
             />
           </div>
         </aside>
@@ -197,8 +201,15 @@ export default function ApplicationHistoryPage() {
   );
 }
 
-function TabButton({ active, onClick, icon, label, count, color }: any) {
-  const colorMap: any = {
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+  count,
+  color,
+}: TabButtonProps) {
+  const colorMap: Record<TabButtonProps["color"], string> = {
     emerald: active
       ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100"
       : "text-slate-400 hover:text-emerald-600",

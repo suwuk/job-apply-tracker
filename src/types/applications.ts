@@ -1,4 +1,61 @@
+import { ReactNode } from "react";
+import { FieldValue } from "firebase/firestore";
+
+export type FirestoreTimestamp = string | FieldValue;
+
+export type FirestoreApplicationPayload = Omit<
+  JobApplicationPayload,
+  "createdAt" | "updatedAt"
+> & {
+  createdAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp;
+};
+
+export type FirestoreCreateApplicationDTO = Omit<
+  CreateApplicationDTO,
+  "createdAt" | "updatedAt"
+> & {
+  createdAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp;
+};
+
 export type ApplicationPriority = "low" | "med" | "high";
+
+export interface TimelineEvent {
+  id: string;
+  logo: string;
+  title: string;
+  date: Date;
+  isoDate: string;
+  location: string;
+  isToday: boolean;
+  color: string;
+}
+
+export interface StatCardProps {
+  label: string;
+  count: number;
+  color: string;
+}
+
+export type ApplicationFormState = {
+  companyName: string;
+  position: string;
+  platform: Platform;
+  jobUrl: string;
+  status: ApplicationStatus;
+  appliedAt: string;
+  location: string;
+  employmentType: EmploymentType;
+  notes: string;
+
+  stageTitle: string;
+  stageNotes: string;
+  scheduledAt: string;
+
+  rejectionReason: string;
+  rejectedAt: string;
+};
 
 export enum Platform {
   LINKEDIN = "linkedin",
@@ -15,9 +72,7 @@ export enum Platform {
 }
 
 export enum ApplicationStatus {
-  // DRAFT dihapus
   APPLIED = "applied",
-  // SCREENING dihapus
   TEST = "test",
   INTERVIEW = "interview",
   OFFER = "offer",
@@ -63,6 +118,24 @@ export interface JobApplicationPayload {
   stages: ApplicationStage[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PatchApplicationPayload {
+  employmentType: EmploymentType;
+  status: ApplicationStatus;
+  priority: "low" | "medium" | "high";
+  notes: string;
+  stages: ApplicationStage[];
+  updatedAt: string;
+}
+
+export interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: ReactNode;
+  label: string;
+  count: number;
+  color: "red" | "blue" | "emerald";
 }
 
 export type CreateApplicationDTO = Omit<JobApplicationPayload, "id">;

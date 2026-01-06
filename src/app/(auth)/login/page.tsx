@@ -4,8 +4,7 @@ import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    // Membungkus komponen client dengan Suspense untuk menangani CSR Bailout
-    <Suspense 
+    <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
           <Loader2 className="animate-spin text-blue-600" size={40} />

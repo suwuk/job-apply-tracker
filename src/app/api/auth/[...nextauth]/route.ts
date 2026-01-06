@@ -1,17 +1,9 @@
 import bcrypt from "bcrypt";
-import NextAuth, { type NextAuthOptions } from "next-auth";
+import NextAuth, { type NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
+import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 import { getUserByEmail, loginWithGoogle } from "@/lib/firebase/service";
-
-interface DbUser {
-  id: string;
-  fullname: string;
-  email: string;
-  password: string;
-  role: string;
-  image?: string | null;
-}
+import { DbUser } from "@/types/user";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -26,21 +18,18 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) return null;
-        const { email, password } = credentials as {
-          email: string;
-          password: string;
-        };
-        console.log(credentials);
 
-        const user = (await getUserByEmail(email)) as DbUser | null;
-        if (!user) {
-          return null;
-        }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const user = (await getUserByEmail(credentials.email)) as DbUser | null;
+        if (!user || !user.password) return null;
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
         if (!isPasswordValid) return null;
-        console.log(user);
+
         return {
           id: user.id,
           fullname: user.fullname,
@@ -48,11 +37,6 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           image: user.image,
         };
-        // if(email === "diaz@gmail.com" && password === "12345"){
-        //     return user;
-        // }else {
-        //     return null
-        // }
       },
     }),
     GoogleProvider({
@@ -61,7 +45,8 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile, user }: any) {
+    async jwt({ token, account, profile, user }) {
+      // Logic untuk Credentials Login
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -69,28 +54,27 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.image = user.image;
       }
-      // const freshUser = await getUserByEmail(token.email);
-      // if (freshUser) {
-      //   token.image = freshUser.image;
-      // }
-      if (account?.provider === "google") {
+
+      if (account?.provider === "google" && profile) {
+        // Casting ke GoogleProfile agar mendapatkan akses ke .picture secara spesifik
+        const googleProfile = profile as GoogleProfile;
+
         const data = {
-          fullname: user.name,
-          email: user.email,
-          image: profile.picture,
+          fullname: googleProfile.name,
+          email: googleProfile.email,
+          image: googleProfile.picture,
           type: "google",
         };
 
         await loginWithGoogle(
           data,
-          (result: { status: boolean; data: any }) => {
+          (result: { status: boolean; data: DbUser }) => {
             if (result.status) {
               token.id = result.data.id;
               token.email = result.data.email;
               token.fullname = result.data.fullname;
               token.image = result.data.image;
               token.role = result.data.role;
-              // token.type = result.data.type;
             }
           }
         );
@@ -98,27 +82,19 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-    async session({ session, token }: any) {
-      if ("id" in token) {
-        session.user.id = token.id;
-      }
-      if ("email" in token) {
-        session.user.email = token.email;
-      }
-      if ("fullname" in token) {
-        session.user.fullname = token.fullname;
-      }
-      if ("role" in token) {
-        session.user.role = token.role;
-      }
-      if ("image" in token) {
-        session.user.image = token.image; // ⬅️ tambahin ini
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.fullname = token.fullname as string;
+        session.user.role = token.role as string;
+        session.user.image = (token.image as string | null | undefined) || null;
       }
       return session;
     },
   },
   pages: {
-    signIn: "/login", //ini untuk memakai layout yang sudah dibuat, kalau mau pakai layout otomatis dari next auth pagesnya hapus saja
+    signIn: "/login",
   },
 };
 
