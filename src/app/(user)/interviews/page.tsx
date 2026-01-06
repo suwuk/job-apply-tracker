@@ -20,7 +20,7 @@ import {
 import { formatFullDate, formatTimeOnly } from "@/utils/date";
 
 export default function InterviewsPage() {
-  const { jobs, loading } = useJobs();
+  const { jobs, loading, refreshJobs } = useJobs();
   const [selectedJob, setSelectedJob] = useState<JobApplicationPayload | null>(
     null
   );
@@ -108,6 +108,7 @@ export default function InterviewsPage() {
               job={selectedJob}
               onClose={() => setSelectedJob(null)}
               isFullPage={false}
+              refresh={refreshJobs}
             />
           </div>
         </aside>
